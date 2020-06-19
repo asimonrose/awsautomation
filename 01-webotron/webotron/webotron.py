@@ -93,11 +93,12 @@ def upload_file(s3_bucket, path, key):
 
 @cli.command('sync')
 @click.argument('pathname', type=click.Path(exists=True))
+@click.argument('bucket')
 def sync(pathname, bucket):
     "Sync contents of PATHNAME to BUCKET"
     s3_bucket = s3.Bucket(bucket)
 
-    root = Path(pathame).expanduser().resolve()
+    root = Path(pathname).expanduser().resolve()
 
     def handle_directory(target): 
          for p in target.iterdir(): 
