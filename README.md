@@ -6,3 +6,4 @@
 
 - List buckets
 - List bucket objects
+- Create and setup a bucket
