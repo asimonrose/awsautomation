@@ -7,3 +7,5 @@
 - List buckets
 - List bucket objects
 - Create and setup a bucket
+- Sync a folder to S3
+- Optional profile choice
