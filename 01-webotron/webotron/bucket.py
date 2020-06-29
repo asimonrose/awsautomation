@@ -1,8 +1,9 @@
 # -*- codeing: utf-8 -*-
-"""Classes for S3 Buckets"""
+"""Classes for S3 Buckets."""
 from pathlib import Path
 import mimetypes
 from botocore.exceptions import ClientError
+import util
 
 
 class BucketManager:
@@ -14,17 +15,27 @@ class BucketManager:
         self.s3 = self.session.resource('s3')
         pass
 
+    def get_region_name(self, bucket):
+        """Get buckets region name."""
+        bucket_location = self.s3.meta.client.get_bucket_location(Bucket=bucket.name)
+        return bucket_location["LocationConstraint"] or 'us-east-1'
+
+    def get_bucket_url(self, bucket):
+        """Get the website URL for this bucket."""
+        return "http://{}.{}".format(bucket.name, util.get_endpoint(self.get_region_name(bucket)).host)
+
     def all_buckets(self):
+        """Get all the buckets."""
         return self.s3.buckets.all()
         print(obj)
 
     def all_objects(self, bucket_name):
-        """Get all objects for all buckets"""
+        """Get all objects for all buckets."""
         return self.s3.Bucket(bucket_name).objects.all()
         print(obj)
 
     def init_bucket(self, bucket_name):
-        """Create new bucket or return existing bucket"""
+        """Create new bucket or return existing bucket."""
         s3_bucket = None
         try:
             s3_bucket = self.s3.create_bucket(
@@ -39,8 +50,10 @@ class BucketManager:
             else:
                 raise error
 
+        return s3_bucket
+
     def set_policy(self, bucket):
-        """Set bucket policy readable by everyone"""
+        """Set bucket policy readable by everyone."""
         policy = """
         {
         "Version": "2012-10-17",
@@ -58,14 +71,14 @@ class BucketManager:
             }
         ]
         }
-        """ % bucket_name
-
+        """ % bucket.name
         policy = policy.strip()
 
         pol = bucket.Policy()
         pol.put(Policy=policy)
 
     def configure_website(self, bucket):
+        """Configure website propeties in the bucket metadata."""
         bucket.Website().put(WebsiteConfiguration={
             'ErrorDocument': {
                 'Key': 'error.html'
@@ -87,7 +100,7 @@ class BucketManager:
             })
 
     def sync(self, pathname, bucket_name):
-        """Sync local folder to S3"""
+        """Sync local folder to S3."""
         bucket = self.s3.Bucket(bucket_name)
         root = Path(pathname).expanduser().resolve()
 
