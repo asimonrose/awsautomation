@@ -32,23 +32,22 @@ class BucketManager:
 
     def get_region_name(self, bucket):
         """Get buckets region name."""
-        bucket_location = self.s3.meta.client.get_bucket_location(Bucket=bucket.name)
+        bucket_location = self.s3.meta.client.get_bucket_location(
+            Bucket=bucket.name)
         return bucket_location["LocationConstraint"] or 'us-east-1'
 
     def get_bucket_url(self, bucket):
         """Get the website URL for this bucket."""
-        return "http://{}.{}".format(bucket.name, 
-            util.get_endpoint(self.get_region_name(bucket)).host)
+        return "http://{}.{}".format(
+            bucket.name, util.get_endpoint(self.get_region_name(bucket)).host)
 
     def all_buckets(self):
         """Get all the buckets."""
         return self.s3.buckets.all()
-        print(obj)
 
     def all_objects(self, bucket_name):
         """Get all objects for all buckets."""
         return self.s3.Bucket(bucket_name).objects.all()
-        print(obj)
 
     def init_bucket(self, bucket_name):
         """Create new bucket or return existing bucket."""
